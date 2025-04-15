@@ -1,0 +1,14 @@
+name: Update Weather Data
+on:
+  schedule:
+    - cron: '0 8 * * *'
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python weather.py
+      - uses: actions/upload-artifact@v3
+        with:
+          name: weather-data
+          path: weather.csv
