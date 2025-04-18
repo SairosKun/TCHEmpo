@@ -1,0 +1,9 @@
+jobs:
+  exemplo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comandos bash
+        run: | 
+          echo "Instalando dependências..."
+          pip install -r requirements.txt
+          python weather.py
