@@ -1,14 +1,36 @@
-name: Update Weather Data
+name: Weather Data Update
 on:
   schedule:
-    - cron: '0 8 * * *'
+    - cron: '0 8 * * *'  # Runs daily at 8:00 UTC
+  workflow_dispatch:  # Allows manual triggering
+
 jobs:
-  run-script:
-    runs-on: ubuntu-latest
+  update-weather:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write  # Needed for artifact upload
+    
     steps:
-      - uses: actions/checkout@v4
-      - run: python weather.py
-      - uses: actions/upload-artifact@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          name: weather-data
-          path: weather.csv
+          python-version: '3.11'  # Required for Ubuntu 24.04
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas
+
+      - name: Run weather script
+        run: python weather.py
+
+      - name: Upload weather data
+        uses: actions/upload-artifact@v4
+        with:
+          name: weather-report
+          path: |
+            weather.csv
+            weather.log
