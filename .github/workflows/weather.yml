@@ -1,12 +1,9 @@
 name: Weather Data Automation
 
-on:  # ⇦ Aqui definimos os gatilhos!
-  workflow_dispatch:  # Permite execução manual
+on:
+  workflow_dispatch:
   schedule:
-    - cron: '0 8 * * *'  # Executa diariamente às 8h UTC
-  push:  # Dispara quando houver push
-    branches: [ main ]
-    paths: [ 'weather.py', '.github/workflows/weather.yml' ]
+    - cron: '0 8 * * *'
 
 jobs:
   update-weather:
@@ -15,18 +12,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         
+      - name: Debug - List files
+        run: ls -la  # Mostra a estrutura de arquivos
+        
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
           
       - name: Install dependencies
-        run: pip install requests pandas
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas
+          pip list  # Mostra pacotes instalados
           
-      - name: Run script
-        run: python weather.py
+      - name: Run script with debug
+        run: |
+          echo "Checando se weather.py existe..."
+          if [ -f "weather.py" ]; then
+            echo "Executando script..."
+            python -c "import sys; print(sys.path)"  # Debug Python path
+            python weather.py
+          else
+            echo "❌ Arquivo weather.py não encontrado!"
+            ls -la
+            exit 1
+          fi
           
       - uses: actions/upload-artifact@v3
+        if: always()
         with:
-          name: weather-data
-          path: weather.csv
+          name: debug-files
+          path: |
+            weather.csv
+            *.log
