@@ -1,0 +1,32 @@
+name: Weather Data Automation
+
+on:  # ⇦ Aqui definimos os gatilhos!
+  workflow_dispatch:  # Permite execução manual
+  schedule:
+    - cron: '0 8 * * *'  # Executa diariamente às 8h UTC
+  push:  # Dispara quando houver push
+    branches: [ main ]
+    paths: [ 'weather.py', '.github/workflows/weather.yml' ]
+
+jobs:
+  update-weather:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: pip install requests pandas
+          
+      - name: Run script
+        run: python weather.py
+          
+      - uses: actions/upload-artifact@v3
+        with:
+          name: weather-data
+          path: weather.csv
